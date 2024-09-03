@@ -7,6 +7,13 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 
+# Cog 리스트
+initial_extensions = [
+    'cogs.music_player',
+    'cogs.playlist_manager',
+    'cogs.dj_assistant'
+]
+
 
 @bot.event
 async def on_ready():
@@ -19,9 +26,20 @@ async def on_ready():
         print(f"Failed to sync commands: {e}")
 
 
+async def load_extensions():
+    for extension in initial_extensions:
+        try:
+            await bot.load_extension(extension)
+            print(f'Loaded extension: {extension}')
+        except Exception as e:
+            print(f'Failed to load extension {extension}: {e}')
+
+
 async def main():
     async with bot:
-        await bot.load_extension('cogs.music')
+        await load_extensions()
         await bot.start(TOKEN)
 
-asyncio.run(main())
+
+if __name__ == '__main__':
+    asyncio.run(main())

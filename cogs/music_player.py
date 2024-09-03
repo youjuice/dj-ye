@@ -27,9 +27,11 @@ class MusicPlayer(commands.Cog):
             async with interaction.channel.typing():
                 source = await YTDLSource.search_source(query, loop=self.bot.loop, download=False)
 
-            interaction.guild.voice_client.play(source, after=lambda e: print(f'Player error: {e}') if e else None)
-
-            await interaction.followup.send(f'🎧 Now playing: {title} - {artist}')
+            if interaction.guild.voice_client.is_playing():
+                await interaction.followup.send("노래가 이미 재생 중입니다. 플레이리스트에 추가하려면 /add_playlist 명령어를 사용해주세요.")
+            else:
+                interaction.guild.voice_client.play(source, after=lambda e: print(f'Player error: {e}') if e else None)
+                await interaction.followup.send(f'🎧 Now playing: {title} - {artist}')
         except Exception as e:
             await interaction.followup.send(f"An error occurred: {str(e)}")
             print(f"Detailed error: {e}")
@@ -43,11 +45,8 @@ class MusicPlayer(commands.Cog):
             async with interaction.channel.typing():
                 source = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
 
-            if interaction.guild.voice_client.is_playing():
-                await interaction.followup.send("노래가 이미 재생 중입니다. 플레이리스트에 추가하려면 /add_playlist 명령어를 사용해주세요.")
-            else:
-                interaction.guild.voice_client.play(source, after=lambda e: print(f'Player error: {e}') if e else None)
-                await interaction.followup.send(f'🎧 Now playing: {source.title}')
+            interaction.guild.voice_client.play(source, after=lambda e: print(f'Player error: {e}') if e else None)
+            await interaction.followup.send(f'🎧 Now playing: {source.title}')
         except Exception as e:
             await interaction.followup.send(f"An error occurred: {str(e)}")
             print(f"Detailed error: {e}")

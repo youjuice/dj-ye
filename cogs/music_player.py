@@ -11,17 +11,23 @@ class MusicPlayer(commands.Cog):
         self.bot = bot
         self.playlist_manager = PlaylistManager()
         self.is_playing = False
+        self.controller_message = None
 
     async def ensure_voice(self, interaction: discord.Interaction):
         if interaction.guild.voice_client is None:
             if interaction.user.voice:
                 voice_client = await interaction.user.voice.channel.connect()
-                await self.show_music_controller(interaction.channel)
                 return voice_client
             else:
                 await interaction.followup.send("음성 채널에 먼저 참가해주세요!")
                 raise commands.CommandError("Author not connected to a voice channel.")
         return interaction.guild.voice_client
+
+    async def update_controller(self, text_channel):
+        view = MusicController(self)
+        if self.controller_message:
+            await self.controller_message.delete()
+        self.controller_message = await text_channel.send("Music Controller:", view=view)
 
     async def show_music_controller(self, text_channel):
         view = MusicController(self)
@@ -39,8 +45,7 @@ class MusicPlayer(commands.Cog):
 
             if not self.is_playing:
                 await self.play_song(voice_client)
-                current_song = self.playlist_manager.get_current_song()
-                await interaction.followup.send(f"ᖰ(ღ'ㅅ'ღ)ᖳ {current_song['title']} - {current_song['artist']}")
+                await interaction.followup.send("Music Start!!")
             else:
                 await interaction.followup.send(f'Added to playlist: {title} - {artist}')
         except Exception as e:
@@ -79,6 +84,7 @@ class MusicPlayer(commands.Cog):
                 if voice_client.channel:
                     await voice_client.channel.send(
                         f'🎧 Now playing: {current_song["title"]} - {current_song["artist"]}')
+                    await self.update_controller(voice_client.channel)
             except Exception as e:
                 print(f"An error occurred: {e}")
                 self.is_playing = False
@@ -89,18 +95,15 @@ class MusicPlayer(commands.Cog):
                 await voice_client.disconnect()
                 if voice_client.channel:
                     await voice_client.channel.send("Playlist ended. Disconnected from voice channel.")
+                    await self.update_controller(voice_client.channel)
 
     async def play_next(self, voice_client):
         self.playlist_manager.move_to_next_song()
         await self.play_song(voice_client)
 
-    async def play_previous(self, voice_client, interaction):
-        prev_song = self.playlist_manager.get_previous_song()
-        if prev_song:
-            await self.play_song(voice_client, interaction)
-        else:
-            await voice_client.disconnect()
-            await interaction.followup.send("Playlist ended. Disconnected from voice channel.")
+    async def play_previous(self, voice_client):
+        self.playlist_manager.get_previous_song()
+        await self.play_song(voice_client)
 
     @app_commands.command(name="add_playlist", description="Add a song to the playlist")
     @app_commands.describe(title="Song title", artist="Artist name")
@@ -126,7 +129,10 @@ class MusicPlayer(commands.Cog):
     async def stop(self, interaction: discord.Interaction):
         await interaction.guild.voice_client.disconnect()
         self.playlist_manager.clear_playlist()
-        await interaction.response.send_message("⏹️ Disconnected from voice channel.")
+        await interaction.response.send_message("Disconnected from voice channel.")
+        if self.controller_message:
+            await self.controller_message.delete()
+            self.controller_message = None
 
 
 async def setup(bot):

@@ -24,6 +24,10 @@ class PlaylistManager:
         if self.playlist:
             self.current_index = (self.current_index + 1) % len(self.playlist)
 
+    def move_to_prev_song(self):
+        if self.playlist:
+            self.current_index = (self.current_index - 1) % len(self.playlist)
+
     def get_current_song(self):
         if not self.playlist or self.current_index == -1:
             return None

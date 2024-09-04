@@ -27,7 +27,7 @@ class MusicPlayer(commands.Cog):
         view = MusicController(self)
         if self.controller_message:
             await self.controller_message.delete()
-        self.controller_message = await text_channel.send("Music Controller:", view=view)
+        self.controller_message = await text_channel.send("ᖰ(ღ'ㅅ'ღ)ᖳ", view=view)
 
     async def show_music_controller(self, text_channel):
         view = MusicController(self)
@@ -45,9 +45,9 @@ class MusicPlayer(commands.Cog):
 
             if not self.is_playing:
                 await self.play_song(voice_client)
-                await interaction.followup.send("Music Start!!")
+                await interaction.followup.send("Music Start!! ミ★")
             else:
-                await interaction.followup.send(f'Added to playlist: {title} - {artist}')
+                await interaction.followup.send(f'♫ Added to playlist: {title} - {artist}')
         except Exception as e:
             await interaction.followup.send(f"An error occurred: {str(e)}")
             print(f"Detailed error: {e}")
@@ -83,7 +83,7 @@ class MusicPlayer(commands.Cog):
 
                 if voice_client.channel:
                     await voice_client.channel.send(
-                        f'🎧 Now playing: {current_song["title"]} - {current_song["artist"]}')
+                        f'♫ Now playing: {current_song["title"]} - {current_song["artist"]}')
                     await self.update_controller(voice_client.channel)
             except Exception as e:
                 print(f"An error occurred: {e}")
@@ -114,7 +114,7 @@ class MusicPlayer(commands.Cog):
             "query": f"{title} {artist}"
         }
         self.playlist_manager.add_song(song_info)
-        await interaction.response.send_message(f"🎵 Added to playlist: {title} - {artist}")
+        await interaction.response.send_message(f"♫ Added to playlist: {title} - {artist}")
 
     @app_commands.command(name="my_playlist", description="Show your playlist")
     async def my_playlist(self, interaction: discord.Interaction):
@@ -123,7 +123,7 @@ class MusicPlayer(commands.Cog):
             await interaction.response.send_message("Your playlist is empty.")
         else:
             playlist_text = "\n".join([f"{i + 1}. {song['title']} - {song['artist']}" for i, song in enumerate(playlist)])
-            await interaction.response.send_message(f"Your playlist:\n{playlist_text}")
+            await interaction.response.send_message(f"♡ Your playlist:\n{playlist_text}")
 
     @app_commands.command(name="stop", description="Stops and disconnects the bot from voice")
     async def stop(self, interaction: discord.Interaction):

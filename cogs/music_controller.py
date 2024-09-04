@@ -10,6 +10,7 @@ class MusicController(View):
     @discord.ui.button(label="Prev", style=discord.ButtonStyle.secondary, custom_id="prev")
     async def prev_button(self, interaction: discord.Interaction, button: Button):
         if interaction.guild.voice_client and interaction.guild.voice_client.is_connected():
+            await interaction.response.defer(ephemeral=True)
             # 현재 재생 중인 노래를 중지
             if interaction.guild.voice_client.is_playing() or interaction.guild.voice_client.is_paused():
                 interaction.guild.voice_client.stop()

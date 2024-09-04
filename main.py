@@ -1,16 +1,14 @@
 import discord
 from discord.ext import commands
 import asyncio
-from config import TOKEN
+from config import TOKEN, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET
 
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 
-# Cog 리스트
 initial_extensions = [
-    'cogs.music_player',
-    'cogs.dj_assistant'
+    'cogs.music_player'
 ]
 
 
@@ -34,11 +32,27 @@ async def load_extensions():
             print(f'Failed to load extension {extension}: {e}')
 
 
-async def main():
-    async with bot:
-        await load_extensions()
-        await bot.start(TOKEN)
+async def initialize_nltk():
+    import nltk
+    nltk.download('punkt', quiet=True)
+    nltk.download('stopwords', quiet=True)
+    nltk.download('wordnet', quiet=True)
 
+
+async def initialize_spotify():
+    from spotipy.oauth2 import SpotifyClientCredentials
+    import spotipy
+    client_credentials_manager = SpotifyClientCredentials(client_id=SPOTIFY_CLIENT_ID,
+                                                          client_secret=SPOTIFY_CLIENT_SECRET)
+    spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+
+
+async def main():
+    await initialize_nltk()
+    await initialize_spotify()
+    await load_extensions()
+    async with bot:
+        await bot.start(TOKEN)
 
 if __name__ == '__main__':
     asyncio.run(main())

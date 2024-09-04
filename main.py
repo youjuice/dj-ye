@@ -9,8 +9,7 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 
 # Cog 리스트
 initial_extensions = [
-    'cogs.music_player',
-    'cogs.dj_assistant'
+    'cogs.music_player'
 ]
 
 

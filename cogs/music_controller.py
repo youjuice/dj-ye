@@ -28,10 +28,10 @@ class MusicController(View):
             await interaction.response.send_message("No music is queued. Use the /play command to add music.", ephemeral=True)
         elif interaction.guild.voice_client.is_paused():
             interaction.guild.voice_client.resume()
-            await interaction.response.send_message("▶️ Resumed the music.", ephemeral=True)
+            await interaction.response.send_message("▶ Resumed the music.", ephemeral=True)
         else:
             interaction.guild.voice_client.pause()
-            await interaction.response.send_message("⏸️ Paused the music.", ephemeral=True)
+            await interaction.response.send_message("⏸ Paused the music.", ephemeral=True)
 
     @discord.ui.button(label="Next", style=discord.ButtonStyle.secondary, custom_id="next")
     async def next_button(self, interaction: discord.Interaction, button: Button):

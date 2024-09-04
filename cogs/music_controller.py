@@ -11,7 +11,7 @@ class MusicController(View):
     async def prev_button(self, interaction: discord.Interaction, button: Button):
         if interaction.guild.voice_client and interaction.guild.voice_client.is_playing():
             interaction.guild.voice_client.stop()
-            await self.player.play_previous(interaction.guild.voice_client)
+            await self.player.play_previous(interaction.guild.voice_client, interaction)
             await interaction.response.send_message("Switched to the previous song.", ephemeral=True)
         else:
             await interaction.response.send_message("No song is currently playing.", ephemeral=True)
@@ -31,9 +31,13 @@ class MusicController(View):
 
     @discord.ui.button(label="Next", style=discord.ButtonStyle.secondary, custom_id="next")
     async def next_button(self, interaction: discord.Interaction, button: Button):
-        if interaction.guild.voice_client and interaction.guild.voice_client.is_playing():
-            interaction.guild.voice_client.stop()
-            await self.player.play_next(interaction.guild.voice_client)
+        if interaction.guild.voice_client and interaction.guild.voice_client.is_connected():
+            # 현재 재생 중인 노래를 중지하고 다음 곡 재생
+            if interaction.guild.voice_client.is_playing() or interaction.guild.voice_client.is_paused():
+                interaction.guild.voice_client.stop()
+
+            # play_next 대신 직접 play_song 호출
+            await self.player.play_song(interaction.guild.voice_client)
             await interaction.response.send_message("Skipped to the next song.", ephemeral=True)
         else:
-            await interaction.response.send_message("No song is currently playing.", ephemeral=True)
+            await interaction.response.send_message("Not connected to a voice channel or no song is playing.", ephemeral=True)

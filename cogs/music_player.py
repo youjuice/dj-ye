@@ -10,6 +10,7 @@ class MusicPlayer(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.playlist_manager = PlaylistManager()
+        self.is_playing = False
 
     async def ensure_voice(self, interaction: discord.Interaction):
         if interaction.guild.voice_client is None:
@@ -24,9 +25,9 @@ class MusicPlayer(commands.Cog):
 
     async def show_music_controller(self, text_channel):
         view = MusicController(self)
-        await text_channel.send("ᖰ(ღ'ㅅ'ღ)ᖳ", view=view)
+        await text_channel.send(view=view)
 
-    @app_commands.command(name="play", description="Enter Song Title & Artist")
+    @app_commands.command(name="play", description="Play a song")
     @app_commands.describe(title="Title", artist="Artist")
     async def play(self, interaction: discord.Interaction, title: str, artist: str):
         await interaction.response.defer()
@@ -34,34 +35,14 @@ class MusicPlayer(commands.Cog):
         try:
             voice_client = await self.ensure_voice(interaction)
             song_info = {"title": title, "artist": artist}
+            self.playlist_manager.add_song(song_info)
 
-            if not voice_client.is_playing():
-                self.playlist_manager.add_song(song_info)
+            if not self.is_playing:
                 await self.play_song(voice_client)
                 current_song = self.playlist_manager.get_current_song()
-                await interaction.followup.send(f'🎧 Now playing: {current_song["title"]} - {current_song["artist"]}')
+                await interaction.followup.send(f"ᖰ(ღ'ㅅ'ღ)ᖳ {current_song['title']} - {current_song['artist']}")
             else:
-                self.playlist_manager.add_song(song_info)
-                await interaction.followup.send(f'🎵 Added to playlist: {title} - {artist}')
-        except Exception as e:
-            await interaction.followup.send(f"An error occurred: {str(e)}")
-            print(f"Detailed error: {e}")
-
-    @app_commands.command(name="play_url", description="Enter YouTube URL")
-    @app_commands.describe(url="YouTube URL")
-    async def play_url(self, interaction: discord.Interaction, url: str):
-        await interaction.response.defer()
-        try:
-            voice_client = await self.ensure_voice(interaction)
-            async with interaction.channel.typing():
-                source = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
-
-            self.playlist_manager.add_song(source)
-            if not voice_client.is_playing():
-                await self.play_song(voice_client)
-                await interaction.followup.send(f'🎧 Now playing: {source.title}')
-            else:
-                await interaction.followup.send(f'🎵 Added to playlist: {source.title}')
+                await interaction.followup.send(f'Added to playlist: {title} - {artist}')
         except Exception as e:
             await interaction.followup.send(f"An error occurred: {str(e)}")
             print(f"Detailed error: {e}")
@@ -73,37 +54,53 @@ class MusicPlayer(commands.Cog):
             return await interaction.response.send_message("Not connected to a voice channel.")
 
         interaction.guild.voice_client.source.volume = volume / 100
-        await interaction.response.send_message(f"🔊 Changed volume to {volume}%")
-
-    async def play_next(self, voice_client):
-        next_song = self.playlist_manager.get_next_song()
-        if next_song:
-            await self.play_song(voice_client)
-            # 다음 노래 재생 알림
-            text_channel = voice_client.guild.text_channels[0]  # 첫 번째 텍스트 채널을 사용
-            await text_channel.send(f'🎧 Now playing: {next_song["title"]} - {next_song["artist"]}')
-        else:
-            await voice_client.disconnect()
-            text_channel = voice_client.guild.text_channels[0]
-            await text_channel.send("Playlist ended. Disconnected from voice channel.")
-
-    async def play_previous(self, voice_client):
-        prev_song = self.playlist_manager.get_previous_song()
-        if prev_song:
-            await self.play_song(voice_client)
-            # 이전 노래 재생 알림
-            text_channel = voice_client.guild.text_channels[0]  # 첫 번째 텍스트 채널을 사용
-            await text_channel.send(f'🎧 Now playing: {prev_song["title"]} - {prev_song["artist"]}')
-        else:
-            text_channel = voice_client.guild.text_channels[0]
-            await text_channel.send("No previous songs in the playlist.")
+        await interaction.response.send_message(f"Changed volume to {volume}%")
 
     async def play_song(self, voice_client):
+        if self.is_playing:
+            return
+
         current_song = self.playlist_manager.get_current_song()
         if current_song:
             query = f"{current_song['title']} {current_song['artist']}"
-            source = await YTDLSource.search_source(query, loop=self.bot.loop, download=False)
-            voice_client.play(source, after=lambda e: self.bot.loop.create_task(self.play_next(voice_client)))
+            try:
+                source = await YTDLSource.search_source(query, loop=self.bot.loop, download=False)
+
+                def after_playing(error):
+                    self.is_playing = False
+                    self.bot.loop.create_task(self.play_next(voice_client))
+
+                if voice_client.is_playing():
+                    voice_client.stop()
+
+                self.is_playing = True
+                voice_client.play(source, after=after_playing)
+
+                if voice_client.channel:
+                    await voice_client.channel.send(
+                        f'🎧 Now playing: {current_song["title"]} - {current_song["artist"]}')
+            except Exception as e:
+                print(f"An error occurred: {e}")
+                self.is_playing = False
+                await self.play_next(voice_client)
+        else:
+            # 재생할 곡이 없으면 연결 해제
+            if voice_client.is_connected():
+                await voice_client.disconnect()
+                if voice_client.channel:
+                    await voice_client.channel.send("Playlist ended. Disconnected from voice channel.")
+
+    async def play_next(self, voice_client):
+        self.playlist_manager.move_to_next_song()
+        await self.play_song(voice_client)
+
+    async def play_previous(self, voice_client, interaction):
+        prev_song = self.playlist_manager.get_previous_song()
+        if prev_song:
+            await self.play_song(voice_client, interaction)
+        else:
+            await voice_client.disconnect()
+            await interaction.followup.send("Playlist ended. Disconnected from voice channel.")
 
     @app_commands.command(name="add_playlist", description="Add a song to the playlist")
     @app_commands.describe(title="Song title", artist="Artist name")

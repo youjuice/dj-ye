@@ -116,5 +116,5 @@ class PlayController:
 
     async def play_previous(self, voice_client, guild_id):
         playlist_manager = self.get_playlist_manager(guild_id)
-        playlist_manager.get_previous_song()
+        playlist_manager.move_to_prev_song()
         await self.play_song(voice_client, guild_id)

@@ -13,6 +13,7 @@ class MusicPlayer(commands.Cog, PlayController, PlaylistController):
         self.playlist_managers = {}
         self.is_playing = {}
         self.controller_messages = {}
+        self.force_play = {}
         PlayController.__init__(self)
         PlaylistController.__init__(self)
 

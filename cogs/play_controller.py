@@ -40,7 +40,7 @@ class PlayController:
         await interaction.response.send_message(f"Changed volume to {volume}%")
 
     async def play_song(self, voice_client, guild_id):
-        if guild_id in self.is_playing and self.is_playing[guild_id]:
+        if guild_id in self.is_playing and self.is_playing[guild_id] and not self.force_play.get(guild_id, False):
             return
 
         playlist_manager = self.get_playlist_manager(guild_id)
@@ -52,12 +52,14 @@ class PlayController:
 
                 def after_playing(error):
                     self.is_playing[guild_id] = False
-                    self.bot.loop.create_task(self.play_next(voice_client, guild_id))
+                    if not self.force_play.get(guild_id, False):
+                        self.bot.loop.create_task(self.play_next(voice_client, guild_id))
 
                 if voice_client.is_playing():
                     voice_client.stop()
 
                 self.is_playing[guild_id] = True
+                self.force_play[guild_id] = False  # force_play 재설정
                 voice_client.play(source, after=after_playing)
 
                 if voice_client.channel:
@@ -67,7 +69,9 @@ class PlayController:
             except Exception as e:
                 print(f"An error occurred: {e}")
                 self.is_playing[guild_id] = False
-                await self.play_next(voice_client, guild_id)
+                self.force_play[guild_id] = False  # force_play 재설정
+                if not self.force_play.get(guild_id, False):
+                    await self.play_next(voice_client, guild_id)
         else:
             if voice_client.is_connected():
                 await voice_client.disconnect()

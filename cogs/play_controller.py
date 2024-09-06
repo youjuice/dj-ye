@@ -116,5 +116,9 @@ class PlayController:
 
     async def play_previous(self, voice_client, guild_id):
         playlist_manager = self.get_playlist_manager(guild_id)
-        playlist_manager.move_to_prev_song()
-        await self.play_song(voice_client, guild_id)
+        previous_song = playlist_manager.move_to_prev_song()
+        if previous_song:
+            self.force_play[guild_id] = True
+            await self.play_song(voice_client, guild_id)
+        else:
+            await voice_client.channel.send("No previous song in the playlist.")

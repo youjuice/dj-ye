@@ -15,7 +15,7 @@ class MusicController(View):
             if interaction.guild.voice_client.is_playing() or interaction.guild.voice_client.is_paused():
                 interaction.guild.voice_client.stop()
 
-            await self.player.play_song(interaction.guild.voice_client, interaction.guild.id)
+            await self.player.play_previous(interaction.guild.voice_client, interaction.guild.id)
         else:
             await interaction.response.send_message("Not connected to a voice channel or no song is playing.", ephemeral=True)
 

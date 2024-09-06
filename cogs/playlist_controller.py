@@ -6,18 +6,6 @@ class PlaylistController:
     def __init__(self):
         pass
 
-    @app_commands.command(name="add_playlist", description="Add a song to the playlist")
-    @app_commands.describe(title="Song title", artist="Artist name")
-    async def add_playlist(self, interaction: discord.Interaction, title: str, artist: str):
-        guild_id = interaction.guild.id
-        song_info = {
-            "title": title,
-            "artist": artist,
-            "query": f"{title} {artist}"
-        }
-        self.get_playlist_manager(guild_id).add_song(song_info)
-        await interaction.response.send_message(f"♫ Added to playlist: {title} - {artist}")
-
     @app_commands.command(name="my_playlist", description="Show your playlist")
     async def my_playlist(self, interaction: discord.Interaction):
         guild_id = interaction.guild.id

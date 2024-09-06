@@ -31,6 +31,9 @@ class PlayController:
         if interaction.guild.voice_client is None:
             return await interaction.response.send_message("Not connected to a voice channel.")
 
+        if volume < 0 or volume > 100:
+            return await interaction.response.send_message("볼륨은 0에서 100 사이의 값이어야 합니다.")
+
         interaction.guild.voice_client.source.volume = volume / 100
         await interaction.response.send_message(f"Changed volume to {volume}%")
 

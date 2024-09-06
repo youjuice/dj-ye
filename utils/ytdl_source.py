@@ -31,6 +31,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
         super().__init__(source, volume)
         self.data = data
         self.title = data.get('title')
+        self.uploader = data.get('uploader', 'Unknown')
         self.url = ""
 
     @classmethod

@@ -27,6 +27,33 @@ class PlayController:
             await interaction.followup.send(f"An error occurred: {str(e)}")
             print(f"Detailed error: {e}")
 
+    @app_commands.command(name="play_url", description="Play a song from a URL")
+    @app_commands.describe(url="URL of the song to play")
+    async def play_url(self, interaction: discord.Interaction, url: str):
+        await interaction.response.defer()
+
+        try:
+            guild_id = interaction.guild.id
+            voice_client = await self.ensure_voice(interaction)
+
+            source = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
+            song_info = {
+                "title": source.title,
+                "artist": source.uploader,
+                "url": url
+            }
+
+            self.get_playlist_manager(guild_id).add_song(song_info)
+
+            if guild_id not in self.is_playing or not self.is_playing[guild_id]:
+                await self.play_song(voice_client, guild_id)
+                await interaction.followup.send("Music Start!! ミ★")
+            else:
+                await interaction.followup.send(f"♫ Added to playlist: {song_info['title']} - {song_info['artist']}")
+        except Exception as e:
+            await interaction.followup.send(f"An error occurred: {str(e)}")
+            print(f"Detailed error: {e}")
+
     @app_commands.command(name="volume", description="Changes the player's volume")
     @app_commands.describe(volume="Volume level (0-100)")
     async def volume(self, interaction: discord.Interaction, volume: int):
@@ -46,9 +73,12 @@ class PlayController:
         playlist_manager = self.get_playlist_manager(guild_id)
         current_song = playlist_manager.get_current_song()
         if current_song:
-            query = f"{current_song['title']} {current_song['artist']}"
             try:
-                source = await YTDLSource.search_source(query, loop=self.bot.loop, download=False)
+                if 'url' in current_song:
+                    source = await YTDLSource.from_url(current_song['url'], loop=self.bot.loop, stream=True)
+                else:
+                    query = f"{current_song['title']} {current_song['artist']}"
+                    source = await YTDLSource.search_source(query, loop=self.bot.loop, download=False)
 
                 def after_playing(error):
                     self.is_playing[guild_id] = False

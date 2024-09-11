@@ -2,6 +2,8 @@
 
 ### ᖰ₍ᐢ•ﻌ•ᐢ₎ᖳ [**Invite DJ Ye!!**](https://discord.com/oauth2/authorize?client_id=1280517943717003284&permissions=2184252416&integration_type=0&scope=bot+applications.commands)
 
+<br>
+
 ### 🎵 주요 기능
 #### 1. 음악 재생
 - 제목과 아티스트 이름으로 노래 재생

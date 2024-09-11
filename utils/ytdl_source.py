@@ -1,4 +1,4 @@
-import yt_dlp as youtube_dl
+import yt_dlp
 import asyncio
 import discord
 import os
@@ -9,7 +9,7 @@ if not os.path.exists(ffmpeg_path):
     ffmpeg_path = "ffmpeg"  # fallback to system ffmpeg if not found
 
 # Suppress noise about console usage from errors
-youtube_dl.utils.bug_reports_message = lambda: ''
+yt_dlp.utils.bug_reports_message = lambda: ''
 
 ytdl_format_options = {
     'format': 'bestaudio/best',
@@ -21,7 +21,12 @@ ytdl_format_options = {
     'quiet': True,
     'no_warnings': True,
     'default_search': 'auto',
-    'source_address': '0.0.0.0'
+    'source_address': '0.0.0.0',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+    'prefer_ffmpeg': True,
+    'cachedir': False,
+    'geo_bypass': True,
+    'extractor_retries': '3',
 }
 
 ffmpeg_options = {
@@ -30,7 +35,7 @@ ffmpeg_options = {
     'executable': ffmpeg_path
 }
 
-ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
+ytdl = yt_dlp.YoutubeDL(ytdl_format_options)
 
 
 class YTDLSource(discord.PCMVolumeTransformer):

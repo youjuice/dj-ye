@@ -1,6 +1,12 @@
 import yt_dlp as youtube_dl
 import asyncio
 import discord
+import os
+
+# FFmpeg 경로 설정
+ffmpeg_path = os.path.join(os.getcwd(), "node_modules", "ffmpeg-static", "ffmpeg")
+if not os.path.exists(ffmpeg_path):
+    ffmpeg_path = "ffmpeg"  # fallback to system ffmpeg if not found
 
 # Suppress noise about console usage from errors
 youtube_dl.utils.bug_reports_message = lambda: ''
@@ -20,7 +26,8 @@ ytdl_format_options = {
 
 ffmpeg_options = {
     'options': '-vn -b:a 128k',
-    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5'
+    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+    'executable': ffmpeg_path
 }
 
 ytdl = youtube_dl.YoutubeDL(ytdl_format_options)

@@ -1,6 +1,8 @@
-## Discord Music Bot - DJ Ye ᖰ₍ᐢ•ﻌ•ᐢ₎ᖳ
+## ᖰ₍ᐢ•ﻌ•ᐢ₎ᖳ Discord Music Bot - DJ Ye
 
-### 주요 기능
+[**👉🏻 Click Here!!**](https://discord.com/oauth2/authorize?client_id=1280517943717003284&permissions=2184252416&integration_type=0&scope=bot+applications.commands)
+
+### 🎵 주요 기능
 1. 음악 재생
   - 제목과 아티스트 이름으로 노래 재생
   - URL을 통한 직접 재생 지원
@@ -16,7 +18,7 @@
   - 버튼을 이용한 직관적인 제어 (재생/일시정지, 다음 곡, 이전 곡)
   - 새 노래 재생 시 컨트롤 버튼 자동 이동
 
-### 명령어
+### 🎵 명령어
 
 모든 명령어는 '/' 접두사를 사용합니다.
 
@@ -32,11 +34,8 @@
 - `/shuffle`: 현재 재생 목록을 무작위로 섞습니다.
 
 #### 재생 제어
-- Play/Pause, Next, Prev 버튼을 사용하여 음악을 제어할 수 있습니다.
+- Play/Pause, Next, Prev 버튼을 사용하여 음악을 제어할 수 있습니다.
 - 새 노래가 재생될 때마다 제어 버튼이 자동으로 채팅의 최하단에 나타납니다.
 
 #### 기타
 - `/stop`: 음악 재생을 중지하고 봇을 음성 채널에서 나가게 합니다.
-
-### 초대 링크
-[**Click Here!!**](https://discord.com/oauth2/authorize?client_id=1280517943717003284&permissions=2184252416&integration_type=0&scope=bot+applications.commands)

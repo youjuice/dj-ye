@@ -2,15 +2,11 @@ import yt_dlp as youtube_dl
 import asyncio
 import discord
 import os
-import sys
 
 # FFmpeg 경로 설정
-ffmpeg_path = os.path.join(os.getcwd(), "bin", "ffmpeg")
-if os.path.exists(ffmpeg_path):
-    os.environ["PATH"] += os.pathsep + os.path.dirname(ffmpeg_path)
-else:
-    print("FFmpeg not found. Please make sure it's installed correctly.")
-    sys.exit(1)
+ffmpeg_path = os.path.join(os.getcwd(), "node_modules", "ffmpeg-static", "ffmpeg")
+if not os.path.exists(ffmpeg_path):
+    ffmpeg_path = "ffmpeg"  # fallback to system ffmpeg if not found
 
 # Suppress noise about console usage from errors
 youtube_dl.utils.bug_reports_message = lambda: ''

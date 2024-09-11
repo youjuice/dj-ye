@@ -1,6 +1,6 @@
 ## ᖰ₍ᐢ•ﻌ•ᐢ₎ᖳ Discord Music Bot - DJ Ye
 
-[**🎧 Invite DJ Ye!!**](https://discord.com/oauth2/authorize?client_id=1280517943717003284&permissions=2184252416&integration_type=0&scope=bot+applications.commands)
+🎧 [**Invite DJ Ye!!**](https://discord.com/oauth2/authorize?client_id=1280517943717003284&permissions=2184252416&integration_type=0&scope=bot+applications.commands)
 
 ### 🎵 주요 기능
 #### 1. 음악 재생

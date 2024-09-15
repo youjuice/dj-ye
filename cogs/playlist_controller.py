@@ -14,7 +14,7 @@ class PlaylistController:
             await interaction.response.send_message("Your playlist is empty.")
         else:
             playlist_text = "\n".join([f"{i + 1}. {song['title']} - {song['artist']}" for i, song in enumerate(playlist)])
-            await interaction.response.send_message(f"♡ Your playlist:\n{playlist_text}")
+            await interaction.response.send_message(f"ミ★ Your playlist:\n{playlist_text}")
 
     @app_commands.command(name="remove", description="Remove a song from the playlist")
     @app_commands.describe(index="The index of the song to remove")

@@ -140,3 +140,4 @@ class PlayController:
             await self.play_song(voice_client, guild_id)
         else:
             await voice_client.channel.send("No previous song in the playlist.")
+
